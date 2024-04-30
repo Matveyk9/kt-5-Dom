@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bank Card</title>
+    <style>
+        #cardInsert {
+            width: 200px;
+            height: 120px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            padding: 10px;
+            position: relative;
+            background-color: #f5f5f5;
+        }
+
+        .bankName {
+            position: absolute;
+            top: 15px;
+            left: 10px;
+            font-weight: bold;
+        }
+
+        .cardNumber {
+            position: absolute;
+            top: 50px;
+            left: 10px;
+        }
+
+        .cardHolderName {
+            position: absolute;
+            bottom: 30px;
+            left: 10px;
+        }
+
+        .expiryDate {
+            position: absolute;
+            bottom: 50px;
+            left: 45%;
+            transform: translateX(-50%);
+        }
+
+        .paymentSystem {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+        }
+
+        #cardTable {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #cardTable th, #cardTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #cardTable th {
+            background-color: #f2f2f2;
+        }
+
+        #cardTable tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <form id="bankCardForm">
+        <label for="bankName">Bank Name:</label>
+        <input type="text" id="bankName" required><br><br>
+
+        <label for="paymentSystem">Payment System:</label>
+        <select id="paymentSystem" required>
+            <option value="visa">Visa</option>
+            <option value="mastercard">Mastercard</option>
+            <option value="МИР">МИР</option>
+            `New PaymentSystem`
+        </select><br><br>
+
+        <label for="cardNumber">Card Number:</label>
+        <input type="text" id="cardNumber" pattern="\d{16}" maxlength="16" required><br><br>
+
+        <label for="cardHolderName">Card Holder Name:</label>
+        <input type="text" id="cardHolderName" required><br><br>
+
+        <label for="expiryMonth">Expiry Month:</label>
+        <input type="text" id="expiryMonth" pattern="\d{1,2}" maxlength="2" required style="width: 30px;">
+        
+        <span id="expirySeparator">/</span>
+        
+        <label for="expiryYear">Expiry Year:</label>
+        <input type="text" id="expiryYear" pattern="\d{4}" maxlength="4" required style="width: 50px;"><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <div id="cardInsert"></div>
+
+    <table id="cardTable">
+        <thead>
+            <tr>
+                <th>Bank</th>
+                <th>Payment System</th>
+                <th>Card Number</th>
+                <th>Card Holder Name</th>
+                <th>Expiry Date</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const form = document.getElementById('bankCardForm');
+        const cardInsert = document.getElementById('cardInsert');
+        const cardTableBody = document.querySelector('#cardTable tbody');
+
+        const inputs = document.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', updateCardInfo);
+        });
+
+        const expiryMonthInput = document.getElementById('expiryMonth');
+        const expirySeparator = document.getElementById('expirySeparator');
+
+        expiryMonthInput.addEventListener('input', function() {
+            if (this.value.length === 1) {
+                expirySeparator.style.visibility = 'visible';
+            } else if (this.value.length === 0) {
+                expirySeparator.style.visibility = 'hidden';
+            }
+        });
+
+        function updateCardInfo() {
+            const bankName = document.getElementById('bankName').value;
+            const paymentSystem = document.getElementById('paymentSystem').value;
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardHolderName = document.getElementById('cardHolderName').value;
+            const expiryMonth = document.getElementById('expiryMonth').value;
+            const expiryYear = document.getElementById('expiryYear').value;
+
+            cardInsert.innerHTML = `
+                <div class="bankName">${bankName}</div>
+                <div class="cardNumber">${formatCardNumber(cardNumber)}</div>
+                <div class="cardHolderName">${cardHolderName}</div>
+                <div class="expiryDate">${expiryMonth}/${expiryYear}</div>
+                <div class="paymentSystem">${paymentSystem}</div>
+            `;
+        }
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const bankName = document.getElementById('bankName').value;
+            const paymentSystem = document.getElementById('paymentSystem').value;
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardHolderName = document.getElementById('cardHolderName').value;
+            const expiryMonth = document.getElementById('expiryMonth').value;
+            const expiryYear = document.getElementById('expiryYear').value;
+
+            const newRow = cardTableBody.insertRow();
+            newRow.innerHTML = `
+                <td>${bankName}</td>
+                <td>${paymentSystem}</td>
+                <td>${formatCardNumber(cardNumber)}</td>
+                <td>${cardHolderName}</td>
+                <td>${expiryMonth}/${expiryYear}</td>
+            `;
+
+            form.reset();
+
+            cardInsert.innerHTML = '';
+        });
+
+        function formatCardNumber(cardNumber) {
+            return cardNumber.replace(/\D/g, '').replace(/(....)(....)(....)(....)/, '$1 $2 $3 $4');
+        }
+    </script>
+</body>
+</html>
